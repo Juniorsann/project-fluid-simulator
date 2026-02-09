@@ -6,3 +6,11 @@ numba>=0.57.0
 pandas>=2.0.0
 pyvista>=0.40.0
 pytest>=7.3.0
+
+# Animation and video
+pillow>=9.5.0
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.8
+
+# Advanced visualization
+celluloid>=0.2.0

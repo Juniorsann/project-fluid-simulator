@@ -292,3 +292,191 @@ def plot_reynolds_number_evolution(
         plt.show()
 
     return fig
+
+
+def plot_velocity_profile_comparison(
+    results_list: list,
+    labels: list,
+    save_path: Optional[str] = None
+) -> Figure:
+    """
+    Compare velocity profiles from multiple simulations.
+    
+    Args:
+        results_list: List of tuples (r, u) for each simulation
+        labels: List of labels for each simulation
+        save_path: Path to save figure
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(10, 7))
+    
+    colors = plt.cm.tab10(np.linspace(0, 1, len(results_list)))
+    
+    for i, (r, u, label) in enumerate(zip(*zip(*results_list), labels)):
+        ax.plot(r * 1000, u, linewidth=2, label=label, color=colors[i])
+    
+    ax.set_xlabel('Radial Position [mm]', fontsize=12)
+    ax.set_ylabel('Velocity [m/s]', fontsize=12)
+    ax.set_title('Velocity Profile Comparison', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=10)
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+    
+    return fig
+
+
+def plot_temperature_distribution_2d(
+    results: dict,
+    view: str = 'cross_section',
+    position: float = 0.5,
+    save_path: Optional[str] = None
+) -> Figure:
+    """
+    Plot 2D temperature distribution.
+    
+    Args:
+        results: Results dictionary with temperature field
+        view: 'cross_section' or 'longitudinal'
+        position: Position for cross-section (0-1)
+        save_path: Path to save figure
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # This is a placeholder - actual implementation would depend on data structure
+    ax.text(0.5, 0.5, f'Temperature Distribution\nView: {view}\nPosition: {position}',
+            ha='center', va='center', fontsize=14, transform=ax.transAxes)
+    
+    ax.set_xlabel('Position [m]', fontsize=12)
+    ax.set_ylabel('Temperature [°C]', fontsize=12)
+    ax.set_title('Temperature Distribution 2D', fontsize=14, fontweight='bold')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+    
+    return fig
+
+
+def plot_streamlines_static(
+    results: dict,
+    n_lines: int = 20,
+    color_by: str = 'velocity',
+    save_path: Optional[str] = None
+) -> Figure:
+    """
+    Plot static streamlines colored by velocity or temperature.
+    
+    Args:
+        results: Results dictionary with velocity field
+        n_lines: Number of streamlines
+        color_by: 'velocity' or 'temperature'
+        save_path: Path to save figure
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    # Placeholder implementation
+    ax.text(0.5, 0.5, f'Streamlines\nNumber: {n_lines}\nColor by: {color_by}',
+            ha='center', va='center', fontsize=14, transform=ax.transAxes)
+    
+    ax.set_xlabel('Axial Position [m]', fontsize=12)
+    ax.set_ylabel('Radial Position [m]', fontsize=12)
+    ax.set_title('Streamlines', fontsize=14, fontweight='bold')
+    ax.set_aspect('equal')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+    
+    return fig
+
+
+def plot_vorticity_field(
+    results: dict,
+    levels: int = 20,
+    save_path: Optional[str] = None
+) -> Figure:
+    """
+    Plot vorticity magnitude.
+    
+    Args:
+        results: Results dictionary with velocity field
+        levels: Number of contour levels
+        save_path: Path to save figure
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    # Placeholder implementation
+    ax.text(0.5, 0.5, f'Vorticity Field\nLevels: {levels}',
+            ha='center', va='center', fontsize=14, transform=ax.transAxes)
+    
+    ax.set_xlabel('Axial Position [m]', fontsize=12)
+    ax.set_ylabel('Radial Position [m]', fontsize=12)
+    ax.set_title('Vorticity Field', fontsize=14, fontweight='bold')
+    ax.set_aspect('equal')
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+    
+    return fig
+
+
+def plot_wall_shear_stress(
+    results: dict,
+    save_path: Optional[str] = None
+) -> Figure:
+    """
+    Plot wall shear stress distribution.
+    
+    Args:
+        results: Results dictionary with velocity field
+        save_path: Path to save figure
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Placeholder implementation
+    ax.text(0.5, 0.5, 'Wall Shear Stress Distribution',
+            ha='center', va='center', fontsize=14, transform=ax.transAxes)
+    
+    ax.set_xlabel('Axial Position [m]', fontsize=12)
+    ax.set_ylabel('Wall Shear Stress [Pa]', fontsize=12)
+    ax.set_title('Wall Shear Stress', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
+    
+    return fig
