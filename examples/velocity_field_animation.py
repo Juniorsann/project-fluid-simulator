@@ -185,18 +185,30 @@ Density:       {oil.density(temperature):.1f} kg/m³
     
     # Try to save
     print("\nSaving animation...")
+    saved = False
     try:
         writer = FFMpegWriter(fps=10, bitrate=5000)
         anim.save('output/velocity_field_evolution.mp4', writer=writer, dpi=120)
         print("✅ Saved: output/velocity_field_evolution.mp4")
+        saved = True
+    except FileNotFoundError:
+        print("⚠️  ffmpeg not available, trying GIF format...")
     except Exception as e:
         print(f"⚠️  Could not save MP4: {e}")
+    
+    if not saved:
         try:
             writer = PillowWriter(fps=10)
             anim.save('output/velocity_field_evolution.gif', writer=writer, dpi=100)
             print("✅ Saved: output/velocity_field_evolution.gif")
+            saved = True
         except Exception as e2:
-            print(f"⚠️  Could not save animation: {e2}")
+            print(f"⚠️  Could not save GIF: {e2}")
+            import traceback
+            traceback.print_exc()
+    
+    if not saved:
+        print("⚠️  Could not save animation in any format")
     
     plt.close()
     

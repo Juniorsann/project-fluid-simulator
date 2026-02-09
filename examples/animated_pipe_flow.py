@@ -85,10 +85,14 @@ def main():
     animator = FlowAnimator(figure_size=(14, 4), fps=30)
     
     # Create simple temperature field for coloring (linear approximation)
-    # In a real scenario, this would come from thermal solver
+    # Create 2D field matching grid shape
+    Z_mesh, R_mesh = np.meshgrid(grid_2d.z, grid_2d.r, indexing='ij')
+    
+    # Temperature varies with axial position
     z_normalized = grid_2d.z / grid_2d.z.max()
-    temp_field = temperature_inlet + (temperature_wall - temperature_inlet) * z_normalized[:, np.newaxis]
-    temp_field = temp_field.T  # Transpose to match grid
+    temp_field = np.zeros((len(grid_2d.r), len(grid_2d.z)))
+    for i in range(len(grid_2d.z)):
+        temp_field[:, i] = temperature_inlet + (temperature_wall - temperature_inlet) * z_normalized[i]
     
     anim1 = animator.animate_particle_tracers(
         velocity_field=(u_z, u_r),
