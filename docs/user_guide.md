@@ -358,3 +358,265 @@ For questions or issues:
 - GitHub Issues: https://github.com/Juniorsann/project-fluid-simulator/issues
 - Documentation: See `docs/` directory
 - Examples: See `examples/` directory
+
+## Visualization and Animation
+
+### Overview
+
+The CFD simulator includes advanced visualization capabilities for creating animations and static plots of simulation results. The visualization system supports:
+
+- **Particle Tracers**: Follow fluid particles through the flow field
+- **Streamlines**: Visualize instantaneous flow patterns
+- **Velocity Fields**: Show velocity vectors and magnitude
+- **Temperature Maps**: Display thermal evolution
+- **Comparison Animations**: Side-by-side scenario comparisons
+
+### Creating Basic Animations
+
+#### Example: Animated Pipe Flow
+
+```python
+from src.visualization.animator import FlowAnimator
+from src.visualization.particle_tracer import ParticleTracer
+
+# After solving your CFD problem...
+# Prepare results dictionary
+results = {
+    'velocity_field': (u_r, u_z),
+    'temperature_field': T_2d,
+    'grid': (r, z),
+    'pipe_radius': pipe.radius(),
+    'pipe_length': pipe.length
+}
+
+# Create animator
+animator = FlowAnimator(results, figure_size=(14, 6))
+
+# Add visualization layers
+animator.add_temperature_map(cmap='hot', alpha=0.6)
+animator.add_particle_tracers(n_particles=300, color_scheme='temperature')
+animator.add_title('Oil Flow with Heat Transfer')
+
+# Generate video
+animator.save_video('flow_animation.mp4', duration=10, fps=30)
+```
+
+### Particle Tracers
+
+Particle tracers follow the fluid velocity field using 4th-order Runge-Kutta integration:
+
+```python
+from src.visualization.particle_tracer import ParticleTracer
+
+# Create particle tracer
+tracer = ParticleTracer(
+    velocity_field=(u_r, u_z),
+    grid=(r, z),
+    temperature_field=T_field  # Optional
+)
+
+# Add particles at inlet
+inlet_positions = np.array([[r_val, 0.0] for r_val in np.linspace(0, R, 10)])
+tracer.add_particles(inlet_positions)
+
+# Advect particles
+dt = 0.01  # Time step [s]
+tracer.update(dt)
+
+# Get particle positions and colors
+positions = tracer.get_positions()
+colors = tracer.get_colors(color_by='velocity')  # or 'temperature', 'age'
+```
+
+**Color Schemes**:
+- `'velocity'`: Color by velocity magnitude
+- `'temperature'`: Color by local temperature
+- `'age'`: Color by particle residence time
+
+### Streamlines
+
+Generate streamlines to visualize flow patterns:
+
+```python
+from src.visualization.streamlines import StreamlineGenerator
+
+# Create generator
+gen = StreamlineGenerator(
+    velocity_field=(u_r, u_z),
+    grid=(r, z)
+)
+
+# Generate streamlines from seed points
+seed_points = np.array([[0.3, 0.0], [0.5, 0.0], [0.7, 0.0]])
+streamlines = gen.generate_streamlines(
+    seed_points,
+    max_length=10.0,
+    step_size=0.01
+)
+
+# Compute vorticity
+vorticity = gen.compute_vorticity()
+
+# Identify vortex cores
+vortex_mask = gen.identify_vortices(method='q_criterion')
+```
+
+### Animation Layers
+
+The `FlowAnimator` supports multiple visualization layers:
+
+#### Particle Tracers
+```python
+animator.add_particle_tracers(
+    n_particles=500,
+    release_mode='continuous',  # or 'single'
+    color_scheme='velocity'
+)
+```
+
+#### Velocity Field
+```python
+animator.add_velocity_field(
+    style='arrows',  # or 'streamlines'
+    density=20,
+    scale=1.0
+)
+```
+
+#### Temperature Map
+```python
+animator.add_temperature_map(
+    cmap='hot',
+    levels=20,
+    alpha=0.7
+)
+```
+
+#### Streamlines
+```python
+animator.add_streamlines(
+    n_lines=30,
+    integration_steps=100
+)
+```
+
+### Saving Animations
+
+#### MP4 Video
+```python
+animator.save_video(
+    filename='animation.mp4',
+    duration=10,  # seconds
+    fps=30,
+    dpi=150
+)
+```
+
+#### GIF
+```python
+animator.save_gif(
+    filename='animation.gif',
+    duration=10,
+    fps=15  # Lower FPS for smaller file size
+)
+```
+
+#### Individual Frames
+```python
+animator.save_frames(
+    directory='frames/',
+    prefix='frame_',
+    format='png',
+    duration=10,
+    fps=30
+)
+```
+
+### Comparison Animations
+
+Compare different scenarios side-by-side:
+
+```python
+from src.visualization.animator import ComparisonAnimator
+
+# Solve two scenarios
+results_cold = solve_scenario(wall_temp=ambient)
+results_heated = solve_scenario(wall_temp=80+273.15)
+
+# Create comparison
+comparison = ComparisonAnimator(
+    [results_cold, results_heated],
+    labels=['No Heating', 'Steam Tracing']
+)
+
+comparison.add_particle_tracers(n_particles=150)
+comparison.add_temperature_map(cmap='hot')
+comparison.save_video('comparison.mp4', duration=12, fps=30)
+```
+
+### Static Plots
+
+Additional plotting functions for static visualizations:
+
+```python
+from src.visualization.plotter import (
+    plot_velocity_profile_comparison,
+    plot_temperature_distribution_2d,
+    plot_streamlines_static,
+    plot_vorticity_field,
+    plot_wall_shear_stress
+)
+
+# Compare velocity profiles
+plot_velocity_profile_comparison(
+    results_list=[(r1, u1), (r2, u2)],
+    labels=['Case 1', 'Case 2'],
+    save_path='velocity_comparison.png'
+)
+
+# Plot vorticity
+plot_vorticity_field(results, levels=20, save_path='vorticity.png')
+```
+
+### Performance Tips
+
+1. **Reduce particle count** for faster previews (100-200 particles)
+2. **Lower FPS** for GIFs (10-15 FPS instead of 30)
+3. **Reduce DPI** for quicker renders (100 instead of 150)
+4. **Use frame export** for very long animations (save frames, then combine)
+
+### Customization
+
+Add custom annotations:
+
+```python
+animator.add_title('My Custom Title')
+animator.add_text(0.02, 0.95, 'Reynolds = 2500', fontsize=12)
+animator.add_colorbar(label='Velocity [m/s]')
+animator.add_isotherms(temperatures=[50, 60, 70, 80], linewidth=2)
+```
+
+### Troubleshooting
+
+**Video generation fails**:
+- Install FFmpeg: `apt-get install ffmpeg` (Linux) or `brew install ffmpeg` (Mac)
+- Check codec availability: `ffmpeg -codecs | grep h264`
+
+**GIF generation fails**:
+- Ensure Pillow is installed: `pip install pillow`
+- Try imageio: `pip install imageio imageio-ffmpeg`
+
+**Out of memory**:
+- Reduce animation duration
+- Decrease DPI
+- Lower particle count
+- Use frame export instead of in-memory animation
+
+### Examples
+
+See the `examples/` directory for complete working examples:
+- `animated_pipe_flow.py`: Basic animated pipe flow with heating
+- `velocity_field_animation.py`: Velocity field visualization
+- `temperature_evolution.py`: Temperature evolution in heated pipe
+- `comparison_animation.py`: Side-by-side scenario comparison
+
